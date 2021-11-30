@@ -1,4 +1,11 @@
-# Genshin_pull_fishing_rod
+<h1 align="center">Genshin-fishing</h1>
+<p align="center">
+    <img src="https://img.shields.io/github/last-commit/fengyanwan/Genshin-fishing">
+    <img src="https://img.shields.io/github/languages/top/fengyanwan/Genshin-fishing">
+</p>
+
+## function now 现在能使用的功能：
+
 auto pull fishing rod in genshin game.  
 在原神游戏中钓鱼时自动拉钓鱼竿。
 
