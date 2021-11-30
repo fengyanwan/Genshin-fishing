@@ -1,7 +1,7 @@
 <h1 align="center">Genshin-fishing</h1>
 <p align="center">
-    <img src="https://img.shields.io/github/last-commit/fengyanwan/Genshin-fishing">
-    <img src="https://img.shields.io/github/languages/top/fengyanwan/Genshin-fishing">
+    <img src="https://img.shields.io/github/last-commit/fengyanwan/Genshin-fishing" alt="last commit">
+    <img src="https://img.shields.io/github/languages/top/fengyanwan/Genshin-fishing" alt="language">
 </p>
 
 ## function now 现在能使用的功能：
