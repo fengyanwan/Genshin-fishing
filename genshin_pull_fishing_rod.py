@@ -54,7 +54,7 @@ def locate_pic_center(*img_tuple, region, shot_data=None, confidence=0.9):
         result = cv2.matchTemplate(shot_data, img, cv2.TM_CCOEFF_NORMED)
         match.append(result)
         match_max.append(result.max())
-    print(match_max)
+    # print(match_max)
     for i in range(len(match_max)):
         if match_max[i] >= confidence:
             offset = np.unravel_index(match[i].argmax(), match[i].shape)
@@ -65,31 +65,23 @@ def locate_pic_center(*img_tuple, region, shot_data=None, confidence=0.9):
             dict_center[f'pic{i + 1}_center'] = None
     return dict_center
 
+    # --------------程序开始-------------#
 
-# --------------程序开始-------------#
-time.sleep(wait_display_time * 3)
-win32api.SetCursorPos(screen_center)
-win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-# loop 1 start
-while True:
-    if is_tip_match(pic_path=bite_tip_pic_path, region=bite_tip_area):
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-        time.sleep(wait_display_time / 2)
-        # loop 2 start
-        while True:
-            dict_xy = locate_pic_center(cursor_img,
-                                        left_img,
-                                        right_img,
-                                        region=scroll_area,
-                                        confidence=0.6)
-            cursor_xy = dict_xy['pic1_center']
-            left_xy = dict_xy['pic2_center']
-            right_xy = dict_xy['pic3_center']
-            if cursor_xy is None and left_xy is None and right_xy is None:
-                time.sleep(wait_display_time / 2)
+if __name__ == '__main__':
+    time.sleep(wait_display_time * 3)
+    win32api.SetCursorPos(screen_center)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+
+    # loop 1 start
+    while True:
+        if is_tip_match(pic_path=bite_tip_pic_path, region=bite_tip_area):
+            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+            win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+            time.sleep(wait_display_time / 2)
+            # loop 2 start
+            while True:
                 dict_xy = locate_pic_center(cursor_img,
                                             left_img,
                                             right_img,
@@ -99,26 +91,36 @@ while True:
                 left_xy = dict_xy['pic2_center']
                 right_xy = dict_xy['pic3_center']
                 if cursor_xy is None and left_xy is None and right_xy is None:
-                    if is_tip_match(pic_path=escape_pic_path, region=escape_tip_area):
-                        fish_escape += 1
-                        head = f'[{fish_catch}:{fish_escape}]'
-                        print(f'{head} {fish_escape} fish escaped')
-                    else:
-                        fish_catch += 1
-                        head = f'[{fish_catch}:{fish_escape}]'
-                        print(f'{head} {fish_catch} fish caught')
-                    time.sleep(wait_display_time * 3)
+                    time.sleep(wait_display_time / 2)
+                    dict_xy = locate_pic_center(cursor_img,
+                                                left_img,
+                                                right_img,
+                                                region=scroll_area,
+                                                confidence=0.6)
+                    cursor_xy = dict_xy['pic1_center']
+                    left_xy = dict_xy['pic2_center']
+                    right_xy = dict_xy['pic3_center']
+                    if cursor_xy is None and left_xy is None and right_xy is None:
+                        if is_tip_match(pic_path=escape_pic_path, region=escape_tip_area):
+                            fish_escape += 1
+                            head = f'[{fish_catch}:{fish_escape}]'
+                            print(f'{head} {fish_escape} fish escaped')
+                        else:
+                            fish_catch += 1
+                            head = f'[{fish_catch}:{fish_escape}]'
+                            print(f'{head} {fish_catch} fish caught')
+                        time.sleep(wait_display_time * 3)
+                        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+                        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+                        break
+                if None in dict_xy.values():
+                    continue
+                judgement_point_x = left_xy[0] + (right_xy[0] - left_xy[0]) * point_strategy
+                distance = judgement_point_x - cursor_xy[0]
+                if distance >= 0:
                     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+                    time.sleep(0.0035 * distance)
                     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-                    break
-            if None in dict_xy.values():
-                continue
-            judgement_point_x = left_xy[0] + (right_xy[0] - left_xy[0]) * point_strategy
-            distance = judgement_point_x - cursor_xy[0]
-            if distance >= 0:
-                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-                time.sleep(0.0035 * distance)
-                win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-        # loop 2 end
-    time.sleep(wait_display_time / 1.2)
-# loop 1 end
+            # loop 2 end
+        time.sleep(wait_display_time / 1.2)
+    # loop 1 end
