@@ -7,7 +7,6 @@ import win32api
 import win32con
 from PIL import ImageGrab
 
-cv2.namedWindow('原图', cv2.WINDOW_NORMAL)
 screen_center = (1920 // 2, 1080 // 2)
 point_strategy = 1 / 2
 
@@ -20,9 +19,9 @@ scroll_area = (710, 97, 500, 32)
 cursor_pic_path = 'picture\\cursor.png'
 left_endpoint_pic_path = 'picture\\left_endpoint.png'
 right_endpoint_pic_path = 'picture\\right_endpoint.png'
-cursor_img = cv2.imread(cursor_pic_path)
-left_img = cv2.imread(left_endpoint_pic_path)
-right_img = cv2.imread(right_endpoint_pic_path)
+cursor_img = cv2.imread(cursor_pic_path, cv2.IMREAD_GRAYSCALE)
+left_img = cv2.imread(left_endpoint_pic_path, cv2.IMREAD_GRAYSCALE)
+right_img = cv2.imread(right_endpoint_pic_path, cv2.IMREAD_GRAYSCALE)
 
 wait_display_time = 1
 fish_catch = 0
@@ -30,14 +29,15 @@ fish_escape = 0
 
 
 def is_tip_match(pic_path, region, shot_data=None, confidence=0.9):
-    templ_pic = cv2.imread(pic_path)
+    templ_pic = cv2.imread(pic_path, cv2.IMREAD_GRAYSCALE)
     if shot_data is None:
         region_to_bbox = (region[0], region[1], region[0] + region[2], region[1] + region[3])
         shot_data = ImageGrab.grab(bbox=region_to_bbox)
         shot_data = np.asarray(shot_data)
-        shot_data = cv2.cvtColor(shot_data, cv2.COLOR_RGB2BGR)
+        shot_data = cv2.cvtColor(shot_data, cv2.COLOR_RGB2GRAY)
     match_result = cv2.matchTemplate(shot_data, templ_pic, cv2.TM_CCOEFF_NORMED)
     if match_result.max() >= confidence:
+        # print(f'鱼儿上钩匹配度：{match_result.max()}')
         return match_result.max()
     else:
         return False
@@ -48,9 +48,9 @@ def locate_pic_center(*img_tuple, region, shot_data=None, confidence=0.9):
         region_to_bbox = (region[0], region[1], region[0] + region[2], region[1] + region[3])
         screen_shot = ImageGrab.grab(bbox=region_to_bbox)
         screen_shot = np.asarray(screen_shot)
-        shot_data = cv2.cvtColor(screen_shot, cv2.COLOR_RGB2BGR)
-        print(a_time := time.time())
-        cv2.imwrite(f'img/{a_time}.png', shot_data)
+        shot_data = cv2.cvtColor(screen_shot, cv2.COLOR_RGB2GRAY)
+        # print(a_time := time.time())
+        # cv2.imwrite(f'img/{a_time}.png', shot_data)
     match = []
     match_max = []
     dict_center = {}
@@ -67,11 +67,18 @@ def locate_pic_center(*img_tuple, region, shot_data=None, confidence=0.9):
             dict_center[f'pic{i + 1}_center'] = center
         else:
             dict_center[f'pic{i + 1}_center'] = None
+        # print(f'pic{i + 1}匹配度:  {match_max[i]}')
     return dict_center
 
 
 # --------------程序开始-------------#
 if __name__ == '__main__':
+    print('原神钓鱼辅助已开启，请确保为管理员模式。')
+
+    for i in range(10, 0, -1):
+        print(f'\r{i}秒后开始辅助，请切换到原神钓鱼界面', end='')
+        time.sleep(1)
+    print('\r.........辅助工具正在运行中.........', end='\n')
     time.sleep(wait_display_time * 3)
     win32api.SetCursorPos(screen_center)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
@@ -89,7 +96,7 @@ if __name__ == '__main__':
                                             left_img,
                                             right_img,
                                             region=scroll_area,
-                                            confidence=0.6)
+                                            confidence=0.65)
                 cursor_xy = dict_xy['pic1_center']
                 left_xy = dict_xy['pic2_center']
                 right_xy = dict_xy['pic3_center']
@@ -99,7 +106,7 @@ if __name__ == '__main__':
                                                 left_img,
                                                 right_img,
                                                 region=scroll_area,
-                                                confidence=0.6)
+                                                confidence=0.65)
                     cursor_xy = dict_xy['pic1_center']
                     left_xy = dict_xy['pic2_center']
                     right_xy = dict_xy['pic3_center']
@@ -127,3 +134,4 @@ if __name__ == '__main__':
             # loop 2 end
         time.sleep(wait_display_time / 1.2)
     # loop 1 end
+    # input("please enter any key: ")
